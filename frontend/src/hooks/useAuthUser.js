@@ -6,8 +6,10 @@ const useAuthUser = () => {
     queryKey: ["authUser"],
     queryFn: getAuthUser,
     retry: false, //one // auth check
+    staleTime: 0, // <-- IMPORTANT: always fetch latest user
+    cacheTime: 0, //<-- IMPORTANT: always fetch latest user
   });
 
-  return { isloading: authUser.isloading, authUser: authUser.data?.user };
+  return { isLoading: authUser.isLoading, authUser: authUser.data?.user };
 };
 export default useAuthUser;

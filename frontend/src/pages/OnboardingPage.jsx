@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import useAuthUser from "../hooks/useAuthUser";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -19,13 +19,13 @@ const OnboardingPage = () => {
   const [formstate, setFromState] = useState({
     FullName: authUser?.FullName || "",
     bio: authUser?.bio || "",
-    nativaLanguage: authUser?.nativaLanguage || "",
+    nativeLanguage: authUser?.nativeLanguage || "",
     learningLanguage: authUser?.learningLanguage || "",
     location: authUser?.location || "",
     profilepic: authUser?.profilepic || "",
   });
 
-  const { mutate: onboardingMutation, ispending } = useMutation({
+  const { mutate: onboardingMutation, isPending } = useMutation({
     mutationFn: completeOnboarding,
     onSuccess: () => {
       toast.success("Profile onboarbed successfully");
@@ -132,11 +132,11 @@ const OnboardingPage = () => {
                 </label>
                 <select
                   name="nativeLanguage"
-                  value={formstate.nativaLanguage}
+                  value={formstate.nativeLanguage}
                   onChange={(e) =>
                     setFromState({
                       ...formstate,
-                      nativaLanguage: e.target.value,
+                      nativeLanguage: e.target.value,
                     })
                   }
                   className="select select-bordered w-full"
@@ -208,10 +208,10 @@ const OnboardingPage = () => {
 
             <button
               className="btn btn-primary w-full"
-              disabled={ispending}
+              disabled={isPending}
               type="submit"
             >
-              {!ispending ? (
+              {!isPending ? (
                 <>
                   <ShipWheelIcon className="size-5 mr-2" />
                   Complete Onboarding

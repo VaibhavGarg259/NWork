@@ -17,8 +17,8 @@ const NotificationsPages = () => {
   });
 
   const { mutate: acceptRequestMutation, isPending } = useMutation({
-    MutationFn: acceptFriendRequest,
-    onsuccess: () => {
+    mutationFn: acceptFriendRequest,
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
     },
@@ -51,7 +51,7 @@ const NotificationsPages = () => {
                 </h2>
 
                 <div className="space-y-3">
-                  {incomingRequests.map((request) => {
+                  {incomingRequests.map((request) => (
                     <div
                       key={request._id}
                       className="card bg-base-200 shadow-sm hover:shadow-md transition-shadow"
@@ -65,30 +65,31 @@ const NotificationsPages = () => {
                                 alt={request.sender.FullName}
                               />
                             </div>
-                            <h3 className="font-semibold">
-                              {request.sender.FullName}
-                            </h3>
-                            <div className="flex flex-wrap gap-1.5 mt-1">
-                              <span className="bade badge-secondary badge-sm">
-                                Native:{request.sender.nativaLanguage}
-                              </span>
-                              <span className="badge  badge-outline badge-sm">
-                                Learning:{request.sender.learningLanguage}
-                              </span>
+                            <div>
+                              <h3 className="font-semibold">
+                                {request.sender.FullName}
+                              </h3>
+                              <div className="flex flex-wrap gap-1.5 mt-1">
+                                <span className="badge badge-secondary badge-sm">
+                                  Native:{request.sender.nativeLanguage}
+                                </span>
+                                <span className="badge badge-outline badge-sm">
+                                  Learning:{request.sender.learningLanguage}
+                                </span>
+                              </div>
                             </div>
                           </div>
+                          <button
+                            className=" btn btn-primary btn-sm"
+                            onClick={() => acceptRequestMutation(request._id)}
+                            disabled={isPending}
+                          >
+                            Accept
+                          </button>
                         </div>
-
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() => acceptRequestMutation(request._id)}
-                          disabled={isPending}
-                        >
-                          Accept
-                        </button>
                       </div>
-                    </div>;
-                  })}
+                    </div>
+                  ))}
                 </div>
               </section>
             )}

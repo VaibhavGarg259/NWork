@@ -121,13 +121,13 @@ export function logout(req, res) {
 export async function onboard(req, res) {
   try {
     const userId = req.user._id;
-    const { FullName, bio, nativaLanguage, learningLanguage, location } =
+    const { FullName, bio, nativeLanguage, learningLanguage, location } =
       req.body;
 
     if (
       !FullName ||
       !bio ||
-      !nativaLanguage ||
+      !nativeLanguage ||
       !learningLanguage ||
       !location
     ) {
@@ -136,7 +136,7 @@ export async function onboard(req, res) {
         missingFields: [
           !FullName && "FullName",
           !bio && "bio",
-          !nativaLanguage && "nativaLanguage",
+          !nativeLanguage && "nativeLanguage",
           !learningLanguage && "learningLanguage",
           !location && "location",
         ].filter(Boolean),
@@ -147,7 +147,7 @@ export async function onboard(req, res) {
       userId,
       {
         ...req.body,
-        isonboarded: true,
+        isOnboarded: true,
       },
       { new: true }
     );
@@ -167,14 +167,14 @@ export async function onboard(req, res) {
       );
     } catch (streamError) {
       console.log(
-        "Error updating Stream user during onboardeng:",
+        "Error updating Stream user during Onboardeng:",
         streamError.message
       );
     }
 
     res.status(200).json({ success: true, user: updatedUser });
   } catch (error) {
-    console.error("onboarding error", error);
+    console.error("Onboarding error", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 } //1.23

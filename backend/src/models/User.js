@@ -25,7 +25,7 @@ const userschema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    nativaLanguage: {
+    nativeLanguage: {
       type: String,
       default: "",
     },
@@ -37,9 +37,9 @@ const userschema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    isonboarded: {
+    isOnboarded: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     friends: [
       {
