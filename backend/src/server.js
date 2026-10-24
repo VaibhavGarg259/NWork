@@ -21,7 +21,7 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://nworkvg.vercel.app",
     credentials: true, //allow frontend to send cookies
   }),
 );
