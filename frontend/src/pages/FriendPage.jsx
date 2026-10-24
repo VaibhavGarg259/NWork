@@ -8,7 +8,7 @@ import { getUserFriends, getRecommendedUsers } from "../lib/api.js";
 import FriendCard, { getLanguageFlag } from "../components/FriendCard.jsx";
 
 import NoFriendsFound from "../components/NoFriendsFound.jsx";
-import UserSearchBar from "../components/userSearchBar.jsx";
+import UserSearchBar from "../components/UserSearchBar.jsx";
 import { capitialize } from "../lib/utils.js";
 import SendFriendRequest from "../components/friend.jsx/SendFriendRequest.jsx";
 
