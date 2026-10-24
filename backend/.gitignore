@@ -82,7 +82,10 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
-
+node_modules/
+.env
+.env.*
+!.env.example
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

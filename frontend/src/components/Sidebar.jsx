@@ -30,7 +30,8 @@ const Sidebar = () => {
       <div className="border-b border-base-300 p-5">
         <Link to="/" className="group flex items-center gap-3">
           <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary shadow-md transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
-            <EarthIcon className="size-7 text-white" />
+            {/* <EarthIcon className="size-7 text-white" /> */}
+            <img src="/logo.png" alt="logo image" />
           </div>
 
           <div className="flex flex-col">

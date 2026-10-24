@@ -29,12 +29,18 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-end w-full">
           {/* Logo - only in the chat page  */}
-          <div className="pl-5">
-            <Link to="/" className="flex items-center gap-2.5">
-              <EarthIcon className="size-9 text-emerald-600" />
-              <span className="text-3xl font-bold font-mono bg-clip-text text-emerald-700 bg-gradient-to-r from-primary to-secondary tracking-wider">
-                NWork
-              </span>
+          <div className="border-b border-base-300 p-5">
+            <Link to="/" className="group flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary shadow-md transition-transform duration-300 group-hover:rotate-6 group-hover:scale-105">
+                {/* <EarthIcon className="size-7 text-white" /> */}
+                <img src="/logo.png" alt="logo image" />
+              </div>
+
+              <div className="flex flex-col">
+                <span className="bg-gradient-to-r from-primary via-purple-500 to-secondary bg-clip-text font-mono text-3xl font-extrabold tracking-wide text-transparent">
+                  NWork
+                </span>
+              </div>
             </Link>
           </div>
           {/* notifications */}
