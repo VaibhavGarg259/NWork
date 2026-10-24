@@ -1,4 +1,4 @@
-import { upsertStreamUser } from "../lib/stream.js";
+// import { upsertStreamUser } from "../lib/stream.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
@@ -39,16 +39,16 @@ export async function signup(req, res) {
     });
 
     // Todo: CREATE THE USER IN STREAM AS WELL
-    try {
-      await upsertStreamUser({
-        id: newUser._id.toString(),
-        name: newUser.FullName,
-        image: newUser.profilepic || "",
-      });
-      console.log(`Stream user created for ${newUser.FullName}`);
-    } catch (error) {
-      console.log("Error creating Stream user:", error);
-    }
+    // try {
+    //   await upsertStreamUser({
+    //     id: newUser._id.toString(),
+    //     name: newUser.FullName,
+    //     image: newUser.profilepic || "",
+    //   });
+    //   console.log(`Stream user created for ${newUser.FullName}`);
+    // } catch (error) {
+    //   console.log("Error creating Stream user:", error);
+    // }
 
     const token = jwt.sign(
       { userId: newUser._id },
@@ -184,15 +184,15 @@ export async function onboard(req, res) {
       });
     }
 
-    try {
-      await upsertStreamUser({
-        id: updatedUser._id.toString(),
-        name: updatedUser.FullName,
-        image: updatedUser.profilepic || "",
-      });
-    } catch (streamError) {
-      console.log("Stream user update error:", streamError.message);
-    }
+    // try {
+    //   await upsertStreamUser({
+    //     id: updatedUser._id.toString(),
+    //     name: updatedUser.FullName,
+    //     image: updatedUser.profilepic || "",
+    //   });
+    // } catch (streamError) {
+    //   console.log("Stream user update error:", streamError.message);
+    // }
 
     return res.status(200).json({
       success: true,
