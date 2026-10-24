@@ -55,7 +55,7 @@ export async function signup(req, res) {
       process.env.JWT_SECRET_KEY,
       {
         expiresIn: "7d",
-      }
+      },
     );
     //localhost:5001/api/auth/login
 
@@ -121,60 +121,88 @@ export function logout(req, res) {
 export async function onboard(req, res) {
   try {
     const userId = req.user._id;
-    const { FullName, bio, nativeLanguage, learningLanguage, location } =
-      req.body;
+
+    const {
+      FullName,
+      bio,
+      nativeLanguage,
+      learningLanguage,
+      location,
+      profilepicUrl,
+    } = req.body;
 
     if (
-      !FullName ||
-      !bio ||
+      !FullName?.trim() ||
+      !bio?.trim() ||
       !nativeLanguage ||
       !learningLanguage ||
-      !location
+      !location?.trim()
     ) {
       return res.status(400).json({
-        message: "All fiekds are required",
+        message: "All fields are required",
         missingFields: [
-          !FullName && "FullName",
-          !bio && "bio",
+          !FullName?.trim() && "FullName",
+          !bio?.trim() && "bio",
           !nativeLanguage && "nativeLanguage",
           !learningLanguage && "learningLanguage",
-          !location && "location",
+          !location?.trim() && "location",
         ].filter(Boolean),
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        ...req.body,
-        isOnboarded: true,
-      },
-      { new: true }
-    );
+    if (nativeLanguage === learningLanguage) {
+      return res.status(400).json({
+        message: "Please select different languages",
+      });
+    }
 
-    if (!updatedUser)
-      return res.status(404).json({ message: "User not found" });
+    const updateData = {
+      FullName: FullName.trim(),
+      bio: bio.trim(),
+      nativeLanguage,
+      learningLanguage,
+      location: location.trim(),
+      isOnboarded: true,
+    };
 
-    //todo update the user info in stream
+    // Keep existing photo if no new URL is sent
+    // purana "Keep existing photo..." block hata ke:
+    if (req.file) {
+      updateData.profilepic = `${req.protocol}://${req.get("host")}/uploads/profiles/${req.file.filename}`;
+    } else if (typeof profilepicUrl === "string" && profilepicUrl.trim()) {
+      updateData.profilepic = profilepicUrl.trim();
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
     try {
       await upsertStreamUser({
         id: updatedUser._id.toString(),
         name: updatedUser.FullName,
         image: updatedUser.profilepic || "",
       });
-      console.log(
-        `Stream user updated after onboarding for ${updatedUser.FullName}`
-      );
     } catch (streamError) {
-      console.log(
-        "Error updating Stream user during Onboardeng:",
-        streamError.message
-      );
+      console.log("Stream user update error:", streamError.message);
     }
 
-    res.status(200).json({ success: true, user: updatedUser });
+    return res.status(200).json({
+      success: true,
+      user: updatedUser,
+    });
   } catch (error) {
-    console.error("Onboarding error", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Onboarding error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
   }
-} //1.23
+}

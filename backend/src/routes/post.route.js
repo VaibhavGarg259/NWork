@@ -3,10 +3,15 @@ import Post from "../models/Post.js";
 import upload from "../middleware/upload.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import {
+  deleteComment,
+  editComment,
   getAllPosts,
   getPostById,
   getPostsByUserId,
+  toggleComment,
+  toggleLike,
 } from "../controllers/Post.controller.js";
+import { sharePostToFriend } from "../controllers/share.controller.js";
 
 const router = express.Router();
 
@@ -39,7 +44,7 @@ router.post(
       console.error("Error creating post:", error);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // ------------------ Get All Posts ------------------
@@ -50,30 +55,25 @@ router.get("/user/:userId", protectRoute, getPostsByUserId);
 
 // ------------------ Get Single Post ------------------
 router.get("/:postId", protectRoute, getPostById);
+// share post
+router.post("/share", protectRoute, sharePostToFriend);
 
 // ------------------ Toggle Like ------------------
-export const toggleLike = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.user.id;
-
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
-
-    if (post.likes.includes(userId)) {
-      post.likes = post.likes.filter((id) => id.toString() !== userId);
-    } else {
-      post.likes.push(userId);
-    }
-
-    await post.save();
-    res.status(200).json(post);
-  } catch (error) {
-    console.error("Error toggling like:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
 
 router.put("/:postId/like", protectRoute, toggleLike);
+
+// // toggle comment
+// router.put("/:postId/comment", protectRoute, toggleComment);
+// router.put("/:postId/comment", protectRoute, editComment);
+// router.delete("/:postId/comment", protectRoute, deleteComment);
+
+/* Create comment */
+router.put("/:postId/comment", protectRoute, toggleComment);
+
+/* Edit comment */
+router.patch("/:postId/comment/:commentId", protectRoute, editComment);
+
+/* Delete comment */
+router.delete("/:postId/comment/:commentId", protectRoute, deleteComment);
 
 export default router;

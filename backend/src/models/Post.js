@@ -9,7 +9,9 @@ const PostSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
+      default: "",
+      trim: true,
+      // required: true,
     },
     media: {
       data: Buffer,
@@ -30,7 +32,7 @@ const PostSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Post = mongoose.model("Post", PostSchema);

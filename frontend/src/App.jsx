@@ -1,6 +1,5 @@
-import { React, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Route, Routes, Navigate } from "react-router";
-// import { Route, Routes, Navigate } from "react-router-dom";
 
 import Homepage from "./pages/Homepage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
@@ -18,7 +17,8 @@ import Layout from "./components/Layout";
 import PageLoader from "./components/PageLoader.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
 import { useThemeStore } from "./store/useThemeStore.js";
-
+import PostPage from "./pages/PostPage.jsx";
+import { socket } from "./lib/socket";
 const App = () => {
   // tanstack query crash course
 
@@ -30,10 +30,19 @@ const App = () => {
   const isAuthenticated = Boolean(authUser);
   const isonboarded = authUser?.isOnboarded;
 
+  // Hooks hamesha early return se pehle
+  useEffect(() => {
+    if (authUser) {
+      socket.connect();
+    } else {
+      socket.disconnect();
+    }
+  }, [authUser]);
+
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className=" h-screen" data-theme={theme}>
+    <div className="scrollbar-none md:scrollbar-auto" data-theme={theme}>
       <Routes>
         <Route
           path="/"
@@ -113,7 +122,7 @@ const App = () => {
           path="/chat/:id"
           element={
             isAuthenticated && isonboarded ? (
-              <Layout showSidebar={false}>
+              <Layout showSidebar={true}>
                 <ChatPage />
               </Layout>
             ) : (
@@ -125,13 +134,9 @@ const App = () => {
           path="/onboarding"
           element={
             isAuthenticated ? (
-              !isonboarded ? (
-                <OnboardingPage />
-              ) : (
-                <Navigate to="/" />
-              )
+              <OnboardingPage />
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace />
             )
           }
         />
@@ -147,6 +152,7 @@ const App = () => {
             )
           }
         />
+        <Route path="/post/:postId" element={<PostPage />} />
       </Routes>
 
       <Toaster />

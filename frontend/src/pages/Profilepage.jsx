@@ -1,123 +1,212 @@
-import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+
 import { axiosInstance } from "../lib/axios";
+import SendFriendRequest from "../components/friend.jsx/SendFriendRequest";
+import useAuthUser from "../hooks/useAuthUser";
+import { getUserFriends } from "../lib/api";
 
 const Profilepage = () => {
-  const { id } = useParams(); //URL se id aarhi hai
-  console.log("URL ID =", id);
-  console.log("Fetched ID =", id);
-  // console.log(user._id);
-
+  const { id } = useParams();
+  const { authUser: own } = useAuthUser();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
-  const friendsCount = user?.friends?.length || 0;
+
+  // All hooks must run before any conditional return.
+  const {
+    data: friends = [],
+    isLoading: loadingFriends,
+    isError: friendsError,
+  } = useQuery({
+    queryKey: ["friends"],
+    queryFn: getUserFriends,
+  });
 
   useEffect(() => {
-    const fetchUser = async () => {
+    if (!id) return;
+
+    let cancelled = false;
+
+    const fetchProfile = async () => {
       try {
-        const res = await axiosInstance.get(`/users/${id}`);
-        setUser(res.data);
+        const [userRes, postsRes] = await Promise.all([
+          axiosInstance.get(`/users/${id}`),
+          axiosInstance.get(`/post/user/${id}`),
+        ]);
+
+        if (!cancelled) {
+          setUser(userRes.data);
+          setPosts(Array.isArray(postsRes.data) ? postsRes.data : []);
+        }
       } catch (error) {
-        console.error("Error fetching user:", error);
+        if (!cancelled) {
+          console.error(
+            "Error fetching profile:",
+            error.response?.data || error.message,
+          );
+        }
       }
     };
 
-    const fetchPosts = async () => {
-      try {
-        const res = await axiosInstance.get(`/post/user/${id}`);
-        setPosts(res.data);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
+    setUser(null);
+    setPosts([]);
+    fetchProfile();
+
+    return () => {
+      cancelled = true;
     };
-    fetchUser();
-    fetchPosts();
   }, [id]);
 
+  // Supports friends represented as user objects or IDs.
+  const isFriend =
+    Array.isArray(friends) &&
+    friends.some((friend) => {
+      const friendId =
+        typeof friend === "string"
+          ? friend
+          : friend?._id || friend?.user?._id || friend?.friend?._id;
+
+      return String(friendId) === String(user?._id);
+    });
+
+  const isOwnProfile =
+    Boolean(own?._id && user?._id) && String(own._id) === String(user._id);
+
+  const friendsCount = user?.friends?.length || 0;
+
+  // Conditional return comes after all hooks.
   if (!user) {
     return (
-      <div className="flex itex-center justify-center h-screen">
-        <p className="text-lg">Loading profile...</p>
+      <div className="flex min-h-screen items-center justify-center bg-base-200/30 px-4 text-base-content">
+        <p className="text-lg font-medium">Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-10 px-4">
-      {/* Profile card  */}
-      <div className="shadow-lg rounded-2xl p-8 max-w-md w-full">
-        <div className="flex flex-col items-center">
-          {/* Avatar  */}
+    <div className="flex min-h-screen flex-col items-center bg-base-200/30 px-3 py-6 text-base-content sm:px-5 sm:py-10">
+      {/* Profile card */}
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl transition-shadow duration-300 hover:shadow-2xl">
+        <div className="flex flex-col items-center px-6 py-8">
           <img
-            src={user.profilepic || "https://via.placeholder.com/150"}
-            alt="profile"
-            className="w-28 h-28 rounded-full shadow-md border-2 border-gray-300 object-cover"
+            src={user.profilepic || "/default-avatar.png"}
+            alt="Profile"
+            className="size-28 rounded-full border-4 border-base-100 object-cover shadow-lg ring-2 ring-primary/30"
           />
 
-          {/* Username  */}
-          <h1 className="mt-4 text-2xl font-bold">
-            {user?.FullName || "Guest User"}
+          <h1 className="mt-4 text-center text-2xl font-extrabold tracking-tight sm:text-3xl">
+            {user.FullName || "Guest User"}
           </h1>
 
-          {/* Email  */}
-          <p>{user.email || "No email avilable"}</p>
+          <p className="mt-1 break-all text-center text-sm text-base-content/60">
+            {user.email || "No email available"}
+          </p>
 
-          {/* Bio  */}
-          <p className="mt-3 text-center text-gray-600">
+          <p className="mt-4 max-w-sm text-center text-sm leading-6 text-base-content/70">
             {user.bio || "This user hasn't added a bio yet."}
           </p>
 
-          {/* job role  */}
-          <p className="mt-3 text-center text-blue-900">
-            {user.learningLanguage || "This user hasn't added who is he/she."}
+          <p className="mt-3 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-center text-sm font-semibold text-primary">
+            {user.learningLanguage || "This user hasn't added their role yet."}
           </p>
 
-          {/* stats  */}
-          <div className="flex justify-evenly w-full mt-6 border-t pt-4">
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-semibold">{posts.length || 0}</span>
-              <span className="text-sm">Posts</span>
+          {/* Stats */}
+          <div className="mt-6 grid w-full grid-cols-2 gap-3 border-t border-base-300 pt-5">
+            <div className="flex flex-col items-center rounded-2xl bg-base-200/70 px-4 py-4 transition-colors hover:bg-primary/10">
+              <span className="text-2xl font-extrabold text-primary">
+                {posts.length}
+              </span>
+              <span className="mt-1 text-xs font-medium uppercase tracking-wider text-base-content/60">
+                Posts
+              </span>
             </div>
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-semibold">{friendsCount}</span>
-              <span className="text-sm">Friends</span>
+
+            <div className="flex flex-col items-center rounded-2xl bg-base-200/70 px-4 py-4 transition-colors hover:bg-primary/10">
+              <span className="text-2xl font-extrabold text-primary">
+                {friendsCount}
+              </span>
+              <span className="mt-1 text-xs font-medium uppercase tracking-wider text-base-content/60">
+                Friends
+              </span>
             </div>
           </div>
+
+          {/* Message / Friend request */}
+          {own?._id && !isOwnProfile && (
+            <div className="mt-5 w-full">
+              {loadingFriends ? (
+                <button className="btn w-full rounded-xl" disabled>
+                  Checking friendship...
+                </button>
+              ) : friendsError ? (
+                <p className="text-center text-sm text-error">
+                  Could not check friendship. Please refresh.
+                </p>
+              ) : isFriend ? (
+                <Link
+                  to={`/chat/${user._id}`}
+                  className="btn btn-outline w-full rounded-xl border-success text-success transition-all duration-200 hover:scale-[1.02] hover:bg-success hover:text-white"
+                >
+                  Message
+                </Link>
+              ) : (
+                <SendFriendRequest userId={user._id} />
+              )}
+            </div>
+          )}
+
+          {/* Edit profile */}
+          {own?._id && isOwnProfile && (
+            <div className="mt-5 w-full">
+              <button
+                onClick={() => navigate("/onboarding")}
+                className="btn btn-primary w-full rounded-xl shadow-md transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+              >
+                Edit Profile
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Posts Grid(Instagram style) */}
-      <div className="mt-10 max-w-4xl w-full">
+      {/* Posts grid */}
+      <div className="mt-8 w-full max-w-4xl">
         {posts.length === 0 ? (
-          <p className="text-center text-gray-500 ">No posts yet</p>
+          <p className="rounded-2xl border border-dashed border-base-300 bg-base-100 px-5 py-12 text-center text-base-content/60">
+            No posts yet
+          </p>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
             {posts.map((post) => {
               let mediaSrc = null;
+
               if (post.media?.data && post.media?.contentType) {
-                mediaSrc = `data:${post.media.contentType};
-                base64,${post.media.data}`;
-              } else if (typeof post.media == "string") {
+                mediaSrc = `data:${post.media.contentType};base64,${post.media.data}`;
+              } else if (typeof post.media === "string") {
                 mediaSrc = post.media;
               }
 
               return (
-                <div key={post._id} className="relative group">
+                <div
+                  key={post._id}
+                  className="group relative aspect-square overflow-hidden rounded-xl border border-base-300 bg-base-200 shadow-sm"
+                >
                   {mediaSrc ? (
                     <img
                       src={mediaSrc}
-                      alt="post"
-                      className="w-full h-40 object-cover"
+                      alt="Post"
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex items-center justify-center w-full h-40 bg-gray-200 text-gray-500">
-                      {post.text}
+                    <div className="flex size-full items-center justify-center overflow-hidden bg-base-200 p-3 text-center text-sm text-base-content/70">
+                      {post.text || "No media available"}
                     </div>
                   )}
-                  {/* overlay on hover (like Instagram) */}
-                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-semibold transition">
-                    {post.likes?.length || 0}
+
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 font-semibold text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    {post.likes?.length || 0} Likes
                   </div>
                 </div>
               );

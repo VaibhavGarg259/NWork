@@ -38,11 +38,19 @@ export async function getUserFriends() {
 }
 
 // 2️⃣ Get All Recommended Users (Users List)
-export async function getRecommendedUsers() {
-  // 👉 Calls backend: GET /users
-  const response = await axiosInstance.get("/users");
+// export async function getRecommendedUsers() {
+//   // 👉 Calls backend: GET /users
+//   const response = await axiosInstance.get("/users");
+//   return response.data;
+//   console.log("Current User From ProtectRoute:", req.user);
+// }
+
+export async function getRecommendedUsers(filters = {}) {
+  const response = await axiosInstance.get("/users", {
+    params: filters,
+  });
+
   return response.data;
-  console.log("Current User From ProtectRoute:", req.user);
 }
 
 // 3️⃣ Get Outgoing Friend Requests
@@ -56,6 +64,7 @@ export async function getOutgoingFriendReqs() {
 export async function sendFriendRequest(userId) {
   // 👉 Calls backend: POST /users/friend-request/:userId
   const response = await axiosInstance.post(`/users/friend-request/${userId}`);
+  console.log("send require res:", response.data);
   return response.data;
 }
 
@@ -66,7 +75,7 @@ export async function getFriendRequests() {
 
 export async function acceptFriendRequest(requestId) {
   const response = await axiosInstance.put(
-    `/users/friend-request/accept/${requestId}`
+    `/users/friend-request/accept/${requestId}`,
   );
   return response.data;
 }
@@ -83,6 +92,21 @@ export const fetchPosts = async () => {
   return response.data;
 };
 
+export const fetchPostById = async (postId) => {
+  const response = await axiosInstance.get(`/post/${postId}`);
+  return response.data;
+};
+
+export const sharePostToFriend = async ({ friendId, postId, url }) => {
+  const response = await axiosInstance.post("/post/share", {
+    friendId,
+    postId,
+    url,
+  });
+  console.log("Share API result:", response.data);
+  return response.data;
+};
+
 export const toggleLike = async (postId) => {
   try {
     const response = await axiosInstance.put(`/post/${postId}/like`);
@@ -93,9 +117,74 @@ export const toggleLike = async (postId) => {
   }
 };
 
-// export const createPost = async (formData) => {
-//   const res = await axiosInstance.post("/create", formData, {
-//     headers: { "Content-Type": "multipart/form-data" },
+export const commentPost = async (postId, text) => {
+  try {
+    const response = await axiosInstance.put(`/post/${postId}/comment`, {
+      text,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    throw error;
+  }
+};
+
+// export const editCommentApi = async (postId, commentId, text) => {
+//   const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
+//     method: "PATCH",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     credentials: "include",
+//     body: JSON.stringify({ text }),
 //   });
-//   return res.data;
+
+//   const data = await res.json();
+
+//   if (!res.ok) {
+//     throw new Error(data.message || "Could not edit comment");
+//   }
+
+//   return data;
 // };
+
+// export const deleteCommentApi = async (postId, commentId) => {
+//   const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
+//     method: "DELETE",
+//     credentials: "include",
+//   });
+
+//   const data = await res.json();
+
+//   if (!res.ok) {
+//     throw new Error(data.message || "Could not delete comment");
+//   }
+
+//   return data;
+// };
+
+export const editCommentApi = async (postId, commentId, text) => {
+  try {
+    const response = await axiosInstance.patch(
+      `/post/${postId}/comment/${commentId}`,
+      { text },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error editing comment:", error);
+    throw error;
+  }
+};
+
+export const deleteCommentApi = async (postId, commentId) => {
+  try {
+    const response = await axiosInstance.delete(
+      `/post/${postId}/comment/${commentId}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw error;
+  }
+};
