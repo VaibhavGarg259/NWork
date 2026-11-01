@@ -12,11 +12,15 @@ const UserSearchBar = () => {
       return;
     }
 
-    // send req backend 
+    // send req backend
     setLoading(true);
     try {
+      // const res = await axios.get(
+      //   `http://localhost:5001/api/users/search?q=${searchQuery}`,
+      //   { withCredentials: true }, //include cookie for auth
+      // );
       const res = await axios.get(
-        `http://localhost:5001/api/users/search?q=${searchQuery}`,
+        `https://nwork-api.onrender.com/api/users/search?q=${searchQuery}`,
         { withCredentials: true }, //include cookie for auth
       );
       setResults(Array.isArray(res.data) ? res.data : []);

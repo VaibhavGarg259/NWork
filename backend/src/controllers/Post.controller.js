@@ -5,6 +5,7 @@ export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", "FullName email profilepic")
+      .populate("comments.user", "FullName profilepic")
       .sort({ createdAt: -1 });
 
     const formattedPosts = posts.map((post) => {
@@ -32,8 +33,10 @@ export const getAllPosts = async (req, res) => {
 export const getPostsByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const posts = await Post.find({ user: userId })
       .populate("user", "FullName email profilepic")
+      .populate("comments.user", "FullName profilepic")
       .sort({ createdAt: -1 });
 
     const formattedPosts = posts.map((post) => {
@@ -91,7 +94,9 @@ export const toggleLike = async (req, res) => {
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    if (post.likes.includes(userId)) {
+    const alreadyLiked = post.likes.some((id) => id.toString() === userId);
+
+    if (alreadyLiked) {
       post.likes = post.likes.filter((id) => id.toString() !== userId);
     } else {
       post.likes.push(userId);
@@ -141,12 +146,17 @@ export const toggleComment = async (req, res) => {
 
     // 4. Save post
     await post.save();
-    await post.populate("comments.user", "FullName profilepic");
+    // await post.populate("comments.user", "FullName profilepic");
+    const populated = await Post.findById(postId).populate(
+      "comments.user",
+      "FullName profilepic",
+    );
 
     return res.status(201).json({
       success: true,
       message: "Comment added successfully",
-      comments: post.comments,
+      // comments: post.comments,
+      comments: populated.comments,
     });
   } catch (error) {
     console.error("Error adding comment:", error);

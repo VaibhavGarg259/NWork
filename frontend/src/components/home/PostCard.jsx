@@ -271,14 +271,34 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
                       </button>
                     </form>
                   ) : (
+                    // <div className="flex items-start justify-between gap-3">
+                    //   <div className="min-w-0 flex-1">
+                    //     {comment.user?.FullName && (
+                    //       <p className="text-xs font-semibold text-base-content/70">
+                    //         {comment.user.FullName}
+                    //       </p>
+                    //     )}
+                    //     <p className="break-words text-sm">{comment.text}</p>
+                    //   </div>
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        {comment.user?.FullName && (
+                      <div className="flex min-w-0 flex-1 items-start gap-2">
+                        <img
+                          src={comment.user?.profilepic}
+                          alt={comment.user?.FullName || "User"}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src =
+                              "https://ui-avatars.com/api/?name=" +
+                              encodeURIComponent(comment.user?.FullName || "U");
+                          }}
+                          className="size-8 shrink-0 rounded-full object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
                           <p className="text-xs font-semibold text-base-content/70">
-                            {comment.user.FullName}
+                            {comment.user?.FullName || "Unknown user"}
                           </p>
-                        )}
-                        <p className="break-words text-sm">{comment.text}</p>
+                          <p className="break-words text-sm">{comment.text}</p>
+                        </div>
                       </div>
 
                       {isOwner && comment._id && (
