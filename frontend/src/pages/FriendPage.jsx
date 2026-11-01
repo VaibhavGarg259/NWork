@@ -2,17 +2,17 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Search, Users } from "lucide-react";
-
-import { getUserFriends, getRecommendedUsers } from "../lib/api.js";
-
+// components
 import FriendCard, { getLanguageFlag } from "../components/FriendCard.jsx";
-
 import NoFriendsFound from "../components/NoFriendsFound.jsx";
 import UserSearchBar from "../components/UserSearchBar.jsx";
-import { capitialize } from "../lib/utils.js";
 import SendFriendRequest from "../components/friend.jsx/SendFriendRequest.jsx";
+// lib
+import { capitialize } from "../lib/utils.js";
+import { getUserFriends, getRecommendedUsers } from "../lib/api.js";
 
 const FriendPage = () => {
+  // filter
   const [filters, setFilters] = useState({
     location: "",
     learningLanguage: "",
@@ -161,65 +161,86 @@ const FriendPage = () => {
             </div>
 
             {loadingUsers || loadingFriends ? (
-              <p>Loading recommendations...</p>
+              <div className="flex justify-center py-8">
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
             ) : recommendedUsers.length === 0 ? (
               <p className="rounded-lg bg-base-200 p-6 text-center">
                 No new learners found. Try different filters.
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {recommendedUsers.map((user) => (
-                  <div key={user._id} className="card bg-base-200">
-                    <div className="card-body p-5">
-                      <Link
-                        to={`/profile/${user._id}`}
-                        className="flex items-center gap-3"
-                      >
-                        <img
-                          src={user.profilepic || "/default-avatar.png"}
-                          alt={user.FullName || "User"}
-                          className="size-16 rounded-full object-cover"
-                        />
+                {recommendedUsers.map((user) => {
+                  const name = user.FullName || "User";
 
-                        <div>
-                          <h3 className="font-semibold">{user.FullName}</h3>
+                  return (
+                    <div key={user._id} className="card bg-base-200">
+                      <div className="card-body p-5">
+                        <Link
+                          to={`/profile/${user._id}`}
+                          className="group flex items-center gap-3"
+                        >
+                          <div className="avatar shrink-0">
+                            <div className="size-12 rounded-full border-2 border-primary/30">
+                              <img
+                                src={user.profilepic || "/default-avatar.png"}
+                                alt={name}
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src =
+                                    "https://ui-avatars.com/api/?name=" +
+                                    encodeURIComponent(name);
+                                }}
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                          </div>
 
-                          {user.location && (
-                            <p className="flex items-center gap-1 text-sm opacity-70">
-                              <MapPin size={14} />
-                              {user.location}
-                            </p>
+                          <div className="min-w-0">
+                            <h3 className="truncate font-semibold group-hover:underline">
+                              {name}
+                            </h3>
+
+                            {user.location && (
+                              <p className="flex items-center gap-1 text-sm opacity-70">
+                                <MapPin size={14} />
+                                <span className="truncate">
+                                  {user.location}
+                                </span>
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+
+                        {/* Language badges */}
+                        <div className="flex flex-wrap gap-2">
+                          {user.nativeLanguage && (
+                            <span className="badge badge-secondary">
+                              {getLanguageFlag(user.nativeLanguage)}
+                              Native: {capitialize(user.nativeLanguage)}
+                            </span>
+                          )}
+
+                          {user.learningLanguage && (
+                            <span className="badge badge-outline">
+                              {getLanguageFlag(user.learningLanguage)}
+                              Learning: {capitialize(user.learningLanguage)}
+                            </span>
                           )}
                         </div>
-                      </Link>
 
-                      {/* Language badges */}
-                      <div className="flex flex-wrap gap-2">
-                        {user.nativeLanguage && (
-                          <span className="badge badge-secondary">
-                            {getLanguageFlag(user.nativeLanguage)}
-                            Native: {capitialize(user.nativeLanguage)}
-                          </span>
+                        {/* Bio */}
+                        {user.bio && (
+                          <p className="line-clamp-2 text-sm opacity-70">
+                            {user.bio}
+                          </p>
                         )}
 
-                        {user.learningLanguage && (
-                          <span className="badge badge-outline">
-                            {getLanguageFlag(user.learningLanguage)}
-                            Professional: {capitialize(user.learningLanguage)}
-                          </span>
-                        )}
+                        <SendFriendRequest userId={user._id} />
                       </div>
-
-                      {/* Bio */}
-                      {user.bio && (
-                        <p className="text-sm opacity-70">{user.bio}</p>
-                      )}
-
-                      {/* Friend request for non-friends */}
-                      <SendFriendRequest userId={user._id} />
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>

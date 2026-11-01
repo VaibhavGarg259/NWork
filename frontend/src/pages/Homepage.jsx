@@ -4,7 +4,7 @@ import { fetchPosts } from "../lib/api";
 
 const Homepage = () => {
   const [posts, setPosts] = useState([]);
-
+  // loadpost
   useEffect(() => {
     const loadPosts = async () => {
       try {

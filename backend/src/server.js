@@ -11,7 +11,6 @@ import postRoutes from "./routes/post.route.js";
 
 import { connectDB } from "./lib/db.js";
 import { initSocket } from "./lib/socket.js";
-import http from "http";
 
 // const httpServer = http.createServer(app);
 
@@ -21,7 +20,8 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: "https://nworkvg.vercel.app",
+    // origin: "https://nworkvg.vercel.app",
+    origin: " http://localhost:5173",
     credentials: true, //allow frontend to send cookies
   }),
 );
@@ -35,12 +35,17 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/post", postRoutes);
 // app.use("/uploads", express.static("uploads"));
 
+// Error handler: routes ke BAAD
+app.use((err, req, res, next) => {
+  if (err?.name === "MulterError" || err?.message?.startsWith("Only JPG")) {
+    return res.status(400).json({ message: err.message });
+  }
+  console.error(err);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
 initSocket(httpServer);
 
-// app.listen(PORT, () => {
-//   console.log(`Server is runing on port ${PORT}`);
-//   connectDB();
-// });
 const startServer = async () => {
   try {
     await connectDB();

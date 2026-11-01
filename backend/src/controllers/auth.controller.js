@@ -1,6 +1,8 @@
-// import { upsertStreamUser } from "../lib/stream.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+// import { uploadProfileImage } from "../lib/cloudinary.js";
+// import fs from "fs";
+import { uploadOnCloudinary } from "../lib/cloudinary.js";
 
 export async function signup(req, res) {
   const { FullName, email, password } = req.body;
@@ -28,8 +30,8 @@ export async function signup(req, res) {
         .json({ message: "User already exists,please use a diffenre one" }); //42:23
     }
 
-    const idx = Math.floor(Math.random() * 100) + 1;
-    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    // const idx = Math.floor(Math.random() * 100) + 1;
+    // // const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
     const newUser = await User.create({
       email,
@@ -38,18 +40,6 @@ export async function signup(req, res) {
       profilepic: randomAvatar,
     });
 
-    // Todo: CREATE THE USER IN STREAM AS WELL
-    // try {
-    //   await upsertStreamUser({
-    //     id: newUser._id.toString(),
-    //     name: newUser.FullName,
-    //     image: newUser.profilepic || "",
-    //   });
-    //   console.log(`Stream user created for ${newUser.FullName}`);
-    // } catch (error) {
-    //   console.log("Error creating Stream user:", error);
-    // }
-
     const token = jwt.sign(
       { userId: newUser._id },
       process.env.JWT_SECRET_KEY,
@@ -57,15 +47,6 @@ export async function signup(req, res) {
         expiresIn: "7d",
       },
     );
-    //localhost:5001/api/auth/login
-
-    // http:
-    // res.cookie("jwt", token, {
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   httpOnly: true, //prevent xss attacks
-    //   sameSite: "strict", // prevent csrf attacks
-    //   secure: process.env.NODE_ENV === "production",
-    // });
 
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -105,14 +86,6 @@ export async function login(req, res) {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "7d",
     });
-    //localhost:5001/api/auth/login
-
-    // res.cookie("jwt", token, {
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    //   httpOnly: true, //prevent xss attacks
-    //   sameSite: "strict", // prevent csrf attacks
-    //   secure: process.env.NODE_ENV === "production",
-    // });
 
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -181,10 +154,15 @@ export async function onboard(req, res) {
       isOnboarded: true,
     };
 
-    // Keep existing photo if no new URL is sent
-    // purana "Keep existing photo..." block hata ke:
+    // ...inside onboard, replacing the req.file / profilepicUrl block:
     if (req.file) {
-      updateData.profilepic = `${req.protocol}://${req.get("host")}/uploads/profiles/${req.file.filename}`;
+      const uploaded = await uploadOnCloudinary(req.file.path);
+      if (!uploaded) {
+        return res
+          .status(500)
+          .json({ message: "Profile picture upload failed" });
+      }
+      updateData.profilepic = uploaded.secure_url;
     } else if (typeof profilepicUrl === "string" && profilepicUrl.trim()) {
       updateData.profilepic = profilepicUrl.trim();
     }
@@ -199,16 +177,6 @@ export async function onboard(req, res) {
         message: "User not found",
       });
     }
-
-    // try {
-    //   await upsertStreamUser({
-    //     id: updatedUser._id.toString(),
-    //     name: updatedUser.FullName,
-    //     image: updatedUser.profilepic || "",
-    //   });
-    // } catch (streamError) {
-    //   console.log("Stream user update error:", streamError.message);
-    // }
 
     return res.status(200).json({
       success: true,

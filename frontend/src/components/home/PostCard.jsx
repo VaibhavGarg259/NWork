@@ -129,7 +129,7 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
       <Link to={`/profile/${post.user?._id}`}>
         <div className="flex items-center gap-3 p-4 transition-colors hover:bg-base-200/60 sm:px-5">
           <img
-            src={post.user?.profilepic || "https://ui-avatars.com/api/?name=U"}
+            src={post.user?.profilepic}
             alt="user avatar"
             onError={(e) => {
               e.currentTarget.onerror = null;
@@ -196,16 +196,6 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
         </button>
 
         {/* share button  */}
-        {/* <button
-          type="button"
-          onClick={handleShare}
-          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-base-content/60 transition-all hover:bg-primary/10 hover:text-primary active:scale-95"
-        >
-          {copied ? <Check size={20} /> : <Share2 size={20} />}
-          <span className="text-sm font-semibold">
-            {copied ? "Link copied" : "Share"}
-          </span>
-        </button> */}
         <button
           type="button"
           onClick={() => setShowShare(true)}

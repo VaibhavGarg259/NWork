@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { login } from "../lib/api";
-import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
+import { useState } from "react";
+import { ShipWheelIcon } from "lucide-react";
+
 import useLogin from "../hooks/useLogin";
 
-const loginPage = () => {
+const LoginPage = () => {
   const [loginData, setloginData] = useState({
     email: "",
     password: "",
@@ -19,8 +18,8 @@ const loginPage = () => {
   };
   return (
     <div
-      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
-      data-theme="forest"
+      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
+      data-theme="retro"
     >
       <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden ">
         {/* Login Form Section */}
@@ -31,13 +30,16 @@ const loginPage = () => {
             <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider">
               NWork
             </span>
-            {/* error messags display */}
-            {error && (
-              <div className="alert alert-error mb-4">
-                <span>{error.response.data.message} </span>
-              </div>
-            )}
           </div>
+
+          {error && (
+            <div className="alert alert-error mb-4">
+              <span>
+                {error?.response?.data?.message ||
+                  "Login failed. Please try again."}
+              </span>
+            </div>
+          )}
 
           {/* login form  */}
           <div className="w-full">
@@ -62,6 +64,7 @@ const loginPage = () => {
                       placeholder="hello@example.com"
                       className="input input-bordered w-full"
                       value={loginData.email}
+                      autoComplete="email"
                       onChange={(e) =>
                         setloginData({ ...loginData, email: e.target.value })
                       }
@@ -76,13 +79,14 @@ const loginPage = () => {
                     </label>
                     <input
                       type="password"
-                      placeholder="........"
+                      placeholder="••••••••"
                       className="input input-bordered w-full"
                       value={loginData.password}
                       onChange={(e) =>
                         setloginData({ ...loginData, password: e.target.value })
                       }
                       required
+                      autoComplete="current-password"
                     />
                   </div>
 
@@ -125,14 +129,14 @@ const loginPage = () => {
             <div className="relative aspect-square max-w-sm mx-auto">
               <img
                 src="/signup.png"
-                alt=" Language connection illustration"
+                alt="Language connection illustration"
                 className="w-full h-full"
               />
             </div>
 
             <div className="text-center space-y-3 mt-6">
               <h2 className="text-xl font-semibold">
-                Connect with langauge partners worldwide
+                Connect with language partners worldwide
               </h2>
               <p className="opacity-70">
                 Practice conversations, make friends, and improve your language
@@ -146,4 +150,4 @@ const loginPage = () => {
   );
 };
 
-export default loginPage;
+export default LoginPage;

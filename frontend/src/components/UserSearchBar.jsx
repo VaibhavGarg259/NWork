@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const UserSearchBar = () => {
   const [query, setQuery] = useState("");
@@ -12,11 +12,12 @@ const UserSearchBar = () => {
       return;
     }
 
+    // send req backend 
     setLoading(true);
     try {
       const res = await axios.get(
         `http://localhost:5001/api/users/search?q=${searchQuery}`,
-        { withCredentials: true } //include cookie for auth
+        { withCredentials: true }, //include cookie for auth
       );
       setResults(Array.isArray(res.data) ? res.data : []);
     } catch (error) {

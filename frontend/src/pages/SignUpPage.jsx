@@ -10,32 +10,21 @@ const SignUpPage = () => {
     password: "",
   });
 
-  // this is how we did it first version, without using our custom hook
-  // const queryClient = useQueryClient();
-
-  // const {
-  //   mutate: signupMutation,
-  //   isPending,
-  //   error,
-  // } = useMutation({
-  //   mutationFn: signup,
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  // });
-
   const { isPending, error, signupMutation } = useSignUP();
 
   const handleSignup = (e) => {
     e.preventDefault();
-    signupMutation(signupData);
+    // signupMutation(signupData);
+    signupMutation({ ...signupData, email: signupData.email.trim() });
   };
   return (
     <div
-      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
-      data-theme="forest"
+      className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
+      data-theme="retro"
     >
       <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden">
         {/* SIGNUP FORM-LEFT SIDE */}
-        <div className="w-full lg:w-1/2 p-4 sm:p-8 flex-col">
+        <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
           {/* Logo */}
 
           <div className="mb-4 flex items-center justify-start gap-2">
@@ -114,6 +103,8 @@ const SignUpPage = () => {
                     </label>
                     <input
                       type="password"
+                      minLength={6}
+                      autoComplete="new-password"
                       placeholder="********"
                       className="input input-bordered w-full"
                       value={signupData.password}
@@ -152,7 +143,11 @@ const SignUpPage = () => {
                 </div>
 
                 {/* submit btn */}
-                <button className="btn btn-primary w-full">
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full"
+                  disabled={isPending}
+                >
                   {isPending ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>

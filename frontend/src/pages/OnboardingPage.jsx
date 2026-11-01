@@ -93,19 +93,6 @@ const OnboardingPage = () => {
     onboardingMutation(data);
   };
 
-  // const handleRandomAvatar = () => {
-  //   setProfileFile(null);
-  //   setPhotoError("");
-
-  //   const seed = encodeURIComponent(formstate.FullName.trim() || "User");
-
-  //   updateField(
-  //     "profilepic",
-  //     `https://api.dicebear.com/9.x/initials/png?seed=${seed}`,
-  //   );
-  //   toast.success("Minimal avatar generated!");
-  // };
-
   const [profileFile, setProfileFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
 

@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-// import { ArrowLeft, Send } from "lucide-react";
 import { ArrowLeft, Send, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+// hooks
 import useAuthUser from "../hooks/useAuthUser";
+// lib
 import { axiosInstance } from "../lib/axios";
 import { socket } from "../lib/socket";
+// components
 import ChatLoader from "../components/chat/ChatLoader";
 import SharedPostPreview from "../components/chat/SharedPostPreview";
 import VideoCall from "../components/chat/VideoCall";
 
-// Date separator
+// Date separator today ye yesterday 1
 const getDateLabel = (dateValue) => {
   if (!dateValue) return "";
 
@@ -119,6 +121,7 @@ const ChatPage = () => {
 
     let cancelled = false;
 
+    // chat
     const initChat = async () => {
       setLoading(true);
       setConversationId(null);
@@ -174,39 +177,6 @@ const ChatPage = () => {
     };
   }, [authUserId, authLoading, targetUserId]);
 
-  // Online / offline presence
-  // useEffect(() => {
-  //   if (!targetUserId) return;
-
-  //   setIsOnline(false);
-
-  //   const handlePresence = ({ userId, isOnline: online }) => {
-  //     if (String(userId) === String(targetUserId)) {
-  //       setIsOnline(Boolean(online));
-  //     }
-  //   };
-
-  //   const watch = () => {
-  //     socket.emit("presence:watch", targetUserId, (response) => {
-  //       setIsOnline(Boolean(response?.isOnline));
-  //     });
-  //   };
-
-  //   socket.on("presence:update", handlePresence);
-  //   socket.on("connect", watch);
-
-  //   if (socket.connected) {
-  //     watch();
-  //   } else {
-  //     socket.connect();
-  //   }
-
-  //   return () => {
-  //     socket.off("presence:update", handlePresence);
-  //     socket.off("connect", watch);
-  //     socket.emit("presence:unwatch", targetUserId);
-  //   };
-  // }, [targetUserId]);
   // Online / offline presence
   useEffect(() => {
     if (!targetUserId || !conversationId) return;
@@ -367,7 +337,6 @@ const ChatPage = () => {
   }
 
   return (
-    // <div className="mx-auto flex h-screen min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-base-content shadow-xl">
     <div className="mx-auto flex h-screen min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-base-content shadow-xl">
       {/* Header */}
       <header className="z-20 flex shrink-0 items-center justify-between border-b border-base-300 bg-base-100 px-3 py-3 sm:px-5 sm:py-4 select-none">
@@ -526,24 +495,6 @@ const ChatPage = () => {
                         : "rounded-bl-md border border-base-300 bg-base-100 text-base-content"
                     }`}
                   >
-                    {/* <div className="space-y-2">
-                      {message.text && (
-                        <p className="whitespace-pre-wrap text-sm leading-6">
-                          {message.text}
-                        </p>
-                      )}
-
-                      {message.attachments?.map(
-                        (attachment, attachmentIndex) =>
-                          attachment.type === "post" ? (
-                            <SharedPostPreview
-                              key={`${message._id ?? message.id}-post-${attachmentIndex}`}
-                              postId={attachment.postId}
-                            />
-                          ) : null,
-                      )}
-                    </div> */}
-
                     <div className="space-y-2">
                       {message.isDeleted ? (
                         <p className="text-sm italic opacity-60">

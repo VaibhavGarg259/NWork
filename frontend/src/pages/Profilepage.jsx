@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import { axiosInstance } from "../lib/axios";
 import SendFriendRequest from "../components/friend.jsx/SendFriendRequest";
 import useAuthUser from "../hooks/useAuthUser";
 import { getUserFriends } from "../lib/api";
+import { axiosInstance } from "../lib/axios";
 
 const Profilepage = () => {
   const { id } = useParams();

@@ -1,13 +1,7 @@
 import useAuthUser from "../hooks/useAuthUser";
 import useLogout from "../hooks/useLogout";
 import { Link, useLocation } from "react-router";
-import {
-  BellIcon,
-  EarthIcon,
-  LogOutIcon,
-  PlusCircle,
-  User,
-} from "lucide-react";
+import { BellIcon, LogOutIcon, PlusCircle, User } from "lucide-react";
 import ThemeSelector from "./ThemeSelector.jsx";
 
 const Navbar = () => {
@@ -15,12 +9,6 @@ const Navbar = () => {
   const location = useLocation();
   const isChatPage = location.pathname?.startsWith("/chat");
 
-  //   const queryClient = useQueryClient();
-
-  //   const { mutate: logoutMutation } = useMutation({
-  //     mutationFn: logout,
-  //     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  //   });
 
   const { logoutMutation } = useLogout();
 

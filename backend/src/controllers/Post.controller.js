@@ -105,6 +105,7 @@ export const toggleLike = async (req, res) => {
   }
 };
 
+// add comment
 export const toggleComment = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -119,8 +120,8 @@ export const toggleComment = async (req, res) => {
       });
     }
 
-    console.log("req.user:", req.user);
-    console.log("userId used for comment:", userId);
+    // console.log("req.user:", req.user);
+    // console.log("userId used for comment:", userId);
 
     // 2. Find post
     const post = await Post.findById(postId);

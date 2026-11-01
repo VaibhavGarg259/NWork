@@ -62,11 +62,6 @@ router.post("/share", protectRoute, sharePostToFriend);
 
 router.put("/:postId/like", protectRoute, toggleLike);
 
-// // toggle comment
-// router.put("/:postId/comment", protectRoute, toggleComment);
-// router.put("/:postId/comment", protectRoute, editComment);
-// router.delete("/:postId/comment", protectRoute, deleteComment);
-
 /* Create comment */
 router.put("/:postId/comment", protectRoute, toggleComment);
 

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Route, Routes, Navigate } from "react-router";
-
+import { Toaster } from "react-hot-toast";
+// pages
 import Homepage from "./pages/Homepage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/loginPage.jsx";
@@ -8,16 +9,15 @@ import Notificationspage from "./pages/NotificationsPages.jsx";
 import FriendPage from "./pages/FriendPage.jsx";
 import OnboardingPage from "./pages/OnboardingPage.jsx";
 import ChatPage from "./pages/chatPage.jsx";
-import CallPage from "./pages/CallPage.jsx";
 import CreatePostPage from "./pages/CreatePostPage.jsx";
 import Profilepage from "./pages/Profilepage.jsx";
-
-import { Toaster } from "react-hot-toast";
+import PostPage from "./pages/PostPage.jsx";
+// components
 import Layout from "./components/Layout";
 import PageLoader from "./components/PageLoader.jsx";
+
 import useAuthUser from "./hooks/useAuthUser.js";
 import { useThemeStore } from "./store/useThemeStore.js";
-import PostPage from "./pages/PostPage.jsx";
 import { socket } from "./lib/socket";
 const App = () => {
   // tanstack query crash course
@@ -41,27 +41,31 @@ const App = () => {
 
   if (isLoading) return <PageLoader />;
 
+  const Protected = ({ children }) =>
+    isAuthenticated && isonboarded ? (
+      <Layout showSidebar={true}>{children}</Layout>
+    ) : (
+      <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+    );
+
   return (
     <div className="scrollbar-none md:scrollbar-auto" data-theme={theme}>
       <Routes>
         <Route
           path="/"
           element={
-            isAuthenticated && isonboarded ? (
-              <Layout showSidebar={true}>
-                <Homepage />
-              </Layout>
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
+            <Protected>
+              {" "}
+              <Homepage />{" "}
+            </Protected>
           }
         />
         <Route
           path="/create-post"
           element={
-            <Layout showSidebar={true}>
+            <Protected>
               <CreatePostPage />
-            </Layout>
+            </Protected>
           }
         />
         <Route
@@ -87,49 +91,29 @@ const App = () => {
         <Route
           path="/notifications"
           element={
-            isAuthenticated && isonboarded ? (
-              <Layout showSidebar={true}>
-                <Notificationspage />
-              </Layout>
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
+            <Protected>
+              <Notificationspage />
+            </Protected>
           }
         />
         <Route
           path="/Friends"
           element={
-            isAuthenticated && isonboarded ? (
-              <Layout showSidebar={true}>
-                <FriendPage />
-              </Layout>
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
+            <Protected>
+              <FriendPage />
+            </Protected>
           }
         />
-        <Route
-          path="/call/:id"
-          element={
-            isAuthenticated && isonboarded ? (
-              <CallPage />
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
-          }
-        />
+
         <Route
           path="/chat/:id"
           element={
-            isAuthenticated && isonboarded ? (
-              <Layout showSidebar={true}>
-                <ChatPage />
-              </Layout>
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
+            <Protected>
+              <ChatPage />
+            </Protected>
           }
         />
+
         <Route
           path="/onboarding"
           element={
@@ -143,16 +127,20 @@ const App = () => {
         <Route
           path="/profile/:id"
           element={
-            isAuthenticated && isonboarded ? (
-              <Layout showSidebar={true}>
-                <Profilepage />
-              </Layout>
-            ) : (
-              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-            )
+            <Protected>
+              {" "}
+              <Profilepage />
+            </Protected>
           }
         />
-        <Route path="/post/:postId" element={<PostPage />} />
+        <Route
+          path="/post/:postId"
+          element={
+            <Protected>
+              <PostPage />
+            </Protected>
+          }
+        />
       </Routes>
 
       <Toaster />

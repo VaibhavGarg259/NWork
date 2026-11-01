@@ -1,8 +1,3 @@
-// import multer from "multer";
-
-// const storage = multer.memoryStorage(); // store file in memory as buffer
-
-// const upload = multer({ storage });
 import multer from "multer";
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -10,3 +5,17 @@ const upload = multer({
 });
 
 export default upload;
+
+// import multer from "multer";
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "./public/temp");
+//   },
+//   filename: function (req, file, cb) {
+//     // const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     cb(null, file.originalname);
+//   },
+// });
+
+// export const upload = multer({ storage });

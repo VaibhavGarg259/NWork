@@ -1,8 +1,8 @@
-// import { useState } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { axiosInstance } from "../lib/axios";
 import { UserRound, ImagePlus, Send } from "lucide-react";
+// lib
+import { axiosInstance } from "../lib/axios";
 
 const CreatePostPage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const CreatePostPage = () => {
 
       const response = await axiosInstance.post("/post/create", formData);
 
-      console.log("Created post:", response.data);
+      // console.log("Created post:", response.data);
 
       alert("Post created successfully!");
 

@@ -37,14 +37,6 @@ export async function getUserFriends() {
   return response.data;
 }
 
-// 2️⃣ Get All Recommended Users (Users List)
-// export async function getRecommendedUsers() {
-//   // 👉 Calls backend: GET /users
-//   const response = await axiosInstance.get("/users");
-//   return response.data;
-//   console.log("Current User From ProtectRoute:", req.user);
-// }
-
 export async function getRecommendedUsers(filters = {}) {
   const response = await axiosInstance.get("/users", {
     params: filters,
@@ -77,11 +69,6 @@ export async function acceptFriendRequest(requestId) {
   const response = await axiosInstance.put(
     `/users/friend-request/accept/${requestId}`,
   );
-  return response.data;
-}
-
-export async function getStreamToken() {
-  const response = await axiosInstance.get("/chat/token");
   return response.data;
 }
 
@@ -129,40 +116,6 @@ export const commentPost = async (postId, text) => {
     throw error;
   }
 };
-
-// export const editCommentApi = async (postId, commentId, text) => {
-//   const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
-//     method: "PATCH",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     credentials: "include",
-//     body: JSON.stringify({ text }),
-//   });
-
-//   const data = await res.json();
-
-//   if (!res.ok) {
-//     throw new Error(data.message || "Could not edit comment");
-//   }
-
-//   return data;
-// };
-
-// export const deleteCommentApi = async (postId, commentId) => {
-//   const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
-//     method: "DELETE",
-//     credentials: "include",
-//   });
-
-//   const data = await res.json();
-
-//   if (!res.ok) {
-//     throw new Error(data.message || "Could not delete comment");
-//   }
-
-//   return data;
-// };
 
 export const editCommentApi = async (postId, commentId, text) => {
   try {
