@@ -11,7 +11,6 @@ const PostSchema = new mongoose.Schema(
       type: String,
       default: "",
       trim: true,
-      // required: true,
     },
     media: {
       data: Buffer,

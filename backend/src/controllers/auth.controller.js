@@ -1,7 +1,5 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
-// import { uploadProfileImage } from "../lib/cloudinary.js";
-// import fs from "fs";
 import { uploadOnCloudinary } from "../lib/cloudinary.js";
 
 export async function signup(req, res) {
