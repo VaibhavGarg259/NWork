@@ -17,6 +17,7 @@ import { initSocket } from "./lib/socket.js";
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT;
+app.set("trust proxy", 1);
 
 app.use(
   cors({

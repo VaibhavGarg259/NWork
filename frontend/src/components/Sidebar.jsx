@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   BellIcon,
-  EarthIcon,
+  // EarthIcon,
   HomeIcon,
   LogOutIcon,
   PlusCircle,

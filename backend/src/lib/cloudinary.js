@@ -36,11 +36,13 @@ cloudinary.config({
 // );
 // console.log(res.status, await res.text());
 
-const removeLocalFile = (filePath) => {
+const removeLocalFile = async (filePath) => {
   try {
-    if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    if (filePath) await fs.promises.unlink(filePath);
   } catch (err) {
-    console.log("Failed to remove temp file:", err.message);
+    if (err.code !== "ENOENT") {
+      console.log("Failed to remove temp file:", err.message);
+    }
   }
 };
 
@@ -61,4 +63,4 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+export { uploadOnCloudinary, removeLocalFile };

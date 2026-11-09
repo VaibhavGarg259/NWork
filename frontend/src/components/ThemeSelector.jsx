@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PaletteIcon, Check } from "lucide-react";
 import { useThemeStore } from "../store/useThemeStore";
 import { THEMES } from "../constants";
@@ -6,22 +6,47 @@ import { THEMES } from "../constants";
 const ThemeSelector = ({ placement = "bottom" }) => {
   const { theme, setTheme } = useThemeStore();
   const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  // Bahar click/tap ya Escape dabane par band karo
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={wrapperRef}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="btn btn-ghost btn-circle"
+        className="btn btn-ghost btn-circle btn-sm sm:btn-md"
         aria-label="Select theme"
+        aria-expanded={open}
       >
         <PaletteIcon className="size-5" />
       </button>
 
       {open && (
         <div
-          className={`absolute right-0 left-0 z-[100] max-h-80 w-56 overflow-y-auto rounded-xl border border-base-300 bg-base-200 p-2 shadow-2xl  ${
-            placement === "top" ? "bottom-full mb-5 " : "top-full mt-3"
+          className={`absolute right-0 z-[100] max-h-80 w-56 max-w-[calc(100vw-1rem)] overflow-y-auto rounded-xl border border-base-300 bg-base-200 p-2 shadow-2xl ${
+            placement === "top" ? "bottom-full mb-5" : "top-full mt-3"
           }`}
         >
           {THEMES.map((item) => (

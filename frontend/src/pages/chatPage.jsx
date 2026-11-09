@@ -337,7 +337,9 @@ const ChatPage = () => {
   }
 
   return (
-    <div className="mx-auto flex h-screen min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-base-content shadow-xl">
+    // <div className="mx-auto flex h-screen min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-base-content shadow-xl">
+    // <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-base-100 text-base-content sm:static sm:z-auto sm:mx-auto sm:h-screen sm:w-full sm:rounded-2xl sm:border sm:border-base-300 sm:shadow-xl">
+    <div className="mx-auto flex h-[calc(100dvh-4rem)] min-h-0 w-full flex-col overflow-hidden bg-base-100 text-base-content sm:rounded-2xl sm:border sm:border-base-300 sm:shadow-xl lg:h-screen">
       {/* Header */}
       <header className="z-20 flex shrink-0 items-center justify-between border-b border-base-300 bg-base-100 px-3 py-3 sm:px-5 sm:py-4 select-none">
         <div className="flex min-w-0 items-center gap-3">
@@ -542,23 +544,25 @@ const ChatPage = () => {
       {/* Message input */}
       <form
         onSubmit={handleSend}
-        className="relative z-10 flex w-full shrink-0 items-center gap-2 border-t border-base-300 bg-base-100 p-3 sm:gap-3 sm:p-4"
+        className="relative z-10 flex w-full shrink-0 items-center gap-2 border-t border-base-300 bg-base-100 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:gap-3 sm:p-4"
       >
         <input
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="Type a message..."
           maxLength={5000}
-          className="min-h-12 min-w-0 flex-1 rounded-2xl border border-base-300 bg-base-200 px-4 py-3 text-sm text-base-content outline-none placeholder:text-base-content/40 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+          enterKeyHint="send"
+          autoComplete="off"
+          className="min-h-11 min-w-0 flex-1 rounded-2xl border border-base-300 bg-base-200 px-4 py-2.5 text-base text-base-content outline-none transition-all placeholder:text-base-content/40 focus:border-primary focus:ring-2 focus:ring-primary/20 sm:min-h-12 sm:py-3 sm:text-sm"
         />
 
         <button
           type="submit"
           disabled={sending || !text.trim() || !conversationId}
-          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-content shadow-md transition-all duration-200 hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-content shadow-md transition-all duration-200 hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:size-12"
           aria-label="Send message"
         >
-          <Send size={19} />
+          <Send className="size-5" />
         </button>
       </form>
     </div>

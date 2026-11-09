@@ -151,7 +151,7 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
       </Link>
 
       {/* Content */}
-      <div className="mb-3 px-4 sm:px-5">
+      {/* <div className="mb-3 px-4 sm:px-5">
         <p className="whitespace-pre-wrap break-words text-sm leading-6 sm:text-base sm:leading-7">
           {post.text}
         </p>
@@ -162,6 +162,24 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
               alt="post media"
               loading="lazy"
               className="max-h-[520px] min-h-40 w-full object-contain"
+            />
+          </div>
+        )}
+      </div> */}
+      {/* Content */}
+      <div className="mb-3 px-4 sm:px-5">
+        <p className="whitespace-pre-wrap break-words text-sm leading-6 sm:text-base sm:leading-7">
+          {post.text}
+        </p>
+
+        {mediaSrc && (
+          <div className="mt-3 aspect-[4/3] overflow-hidden rounded-xl bg-base-200/70">
+            <img
+              src={mediaSrc}
+              alt="post media"
+              loading="lazy"
+              decoding="async"
+              className="size-full object-contain"
             />
           </div>
         )}
@@ -271,15 +289,6 @@ const PostCard = ({ post: initialPost, defaultOpenComments = false }) => {
                       </button>
                     </form>
                   ) : (
-                    // <div className="flex items-start justify-between gap-3">
-                    //   <div className="min-w-0 flex-1">
-                    //     {comment.user?.FullName && (
-                    //       <p className="text-xs font-semibold text-base-content/70">
-                    //         {comment.user.FullName}
-                    //       </p>
-                    //     )}
-                    //     <p className="break-words text-sm">{comment.text}</p>
-                    //   </div>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 flex-1 items-start gap-2">
                         <img
