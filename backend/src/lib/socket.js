@@ -55,8 +55,8 @@ const isCallMember = (call, userId) =>
 export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
-      // origin: "https://nworkfrontend.vercel.app",
+      // origin: "http://localhost:5173",
+      origin: "https://nworkfrontend.vercel.app",
       credentials: true,
     },
   });
