@@ -1,4 +1,5 @@
 import Post from "../models/Post.js";
+import mongoose from "mongoose";
 
 // ---- GET ALL POSTS ----
 export const getAllPosts = async (req, res) => {
@@ -84,6 +85,64 @@ export const getPostById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// ---- GET POST BY ID ----
+// export const getPostById = async (req, res) => {
+//   try {
+//     const { postId } = req.params;
+
+//     // console.log("Requested Post ID:", postId);
+
+//     // 1. Validate MongoDB ObjectId
+//     if (!mongoose.Types.ObjectId.isValid(postId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid Post ID",
+//       });
+//     }
+
+//     // 2. Find post
+//     const post = await Post.findById(postId)
+//       .populate("user", "FullName email profilepic")
+//       .populate("comments.user", "FullName profilepic");
+
+//     // 3. Check post existence
+//     if (!post) {
+//       console.log("Post not found in database:", postId);
+
+//       return res.status(404).json({
+//         success: false,
+//         message: "Post not found",
+//       });
+//     }
+
+//     // 4. Convert post into object
+//     const postObj = post.toObject();
+
+//     // 5. Convert image into Base64
+//     let media = null;
+
+//     if (postObj.media?.data) {
+//       media = `data:${postObj.media.contentType};base64,${postObj.media.data.toString("base64")}`;
+//     }
+
+//     // 6. Send response
+//     return res.status(200).json({
+//       success: true,
+//       post: {
+//         ...postObj,
+//         media,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error in getPostById:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
 
 // like function
 export const toggleLike = async (req, res) => {

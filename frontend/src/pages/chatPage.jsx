@@ -147,7 +147,7 @@ const ChatPage = () => {
           `/chat/conversations/${id}/messages`,
         );
 
-        console.log("CHAT RESPONSE:", response.data);
+        // console.log("CHAT RESPONSE:", response.data);
 
         const history = getHistoryMessages(response.data);
 
