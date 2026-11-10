@@ -169,6 +169,31 @@ export const initSocket = (httpServer) => {
       }
     });
 
+    // call function start
+
+    // call start me help
+
+    const cleanupCall = (callId, notifyPeer = false, endedBy = null) => {
+      const call = calls.get(callId);
+
+      if (call && notifyPeer) {
+        const peerId =
+          call.callerId === endedBy ? call.receiverId : call.callerId;
+
+        io.to(`user:${peerId}`).emit("call:ended", { callId });
+      }
+
+      // Call record ho ya na ho, matching mappings remove karo
+      for (const [uid, existingCallId] of userCalls.entries()) {
+        if (existingCallId === callId) {
+          userCalls.delete(uid);
+        }
+      }
+
+      calls.delete(callId);
+    };
+
+    // call start
     socket.on(
       "call:start",
       async ({ conversationId, toUserId, receiverId: rid, type } = {}) => {
@@ -182,6 +207,13 @@ export const initSocket = (httpServer) => {
 
           const members = conversation.participants.map((id) => id.toString());
           if (!members.includes(receiverId)) return;
+
+          // Clean stale caller mapping
+          for (const [uid, existingCallId] of userCalls.entries()) {
+            if (!calls.has(existingCallId)) {
+              userCalls.delete(uid);
+            }
+          }
 
           if (userCalls.has(userId) || userCalls.has(receiverId)) {
             socket.emit("call:error", { message: "User is busy" });
@@ -233,19 +265,25 @@ export const initSocket = (httpServer) => {
     });
 
     // 3. Reject call
+    // Reject call
     socket.on("call:reject", ({ callId } = {}) => {
       const call = calls.get(callId);
 
       if (!call || call.receiverId !== userId) return;
       if (call.status !== "ringing") return;
 
-      io.to(`user:${call.callerId}`).emit("call:rejected", {
-        callId,
-      });
+      io.to(`user:${call.callerId}`).emit("call:rejected", { callId });
 
-      calls.delete(callId);
-      userCalls.delete(call.callerId);
-      userCalls.delete(call.receiverId);
+      cleanupCall(callId);
+    });
+
+    // End call
+    socket.on("call:end", ({ callId } = {}) => {
+      const call = calls.get(callId);
+
+      if (!call || !isCallMember(call, userId)) return;
+
+      cleanupCall(callId, true, userId);
     });
 
     // 4. WebRTC signaling relay
@@ -271,21 +309,6 @@ export const initSocket = (httpServer) => {
     relaySignal("call:answer");
     relaySignal("call:ice-candidate");
 
-    // 5. End call
-    socket.on("call:end", ({ callId } = {}) => {
-      const call = calls.get(callId);
-
-      if (!call || !isCallMember(call, userId)) return;
-
-      const peerId = call.callerId === userId ? call.receiverId : call.callerId;
-
-      io.to(`user:${peerId}`).emit("call:ended", { callId });
-
-      calls.delete(callId);
-      userCalls.delete(call.callerId);
-      userCalls.delete(call.receiverId);
-    });
-
     // Disconnect handling will be added next.
     // socket.on("disconnect", () => {
     //   const callId = userCalls.get(userId);
@@ -303,8 +326,30 @@ export const initSocket = (httpServer) => {
     //     calls.delete(callId);
     //   }
     // });
+    // socket.on("disconnect", () => {
+    //   // Dusra tab/device connected hai to user abhi bhi online hai
+    //   if (isUserOnline(userId)) return;
+
+    //   io.to(`presence:${userId}`).emit("presence:update", {
+    //     userId,
+    //     isOnline: false,
+    //   });
+
+    //   const callId = userCalls.get(userId);
+    //   if (!callId) return;
+
+    //   const call = calls.get(callId);
+    //   if (call) {
+    //     const peerId =
+    //       call.callerId === userId ? call.receiverId : call.callerId;
+    //     io.to(`user:${peerId}`).emit("call:ended", { callId });
+    //     userCalls.delete(call.callerId);
+    //     userCalls.delete(call.receiverId);
+    //     calls.delete(callId);
+    //   }
+    // });
+
     socket.on("disconnect", () => {
-      // Dusra tab/device connected hai to user abhi bhi online hai
       if (isUserOnline(userId)) return;
 
       io.to(`presence:${userId}`).emit("presence:update", {
@@ -315,15 +360,7 @@ export const initSocket = (httpServer) => {
       const callId = userCalls.get(userId);
       if (!callId) return;
 
-      const call = calls.get(callId);
-      if (call) {
-        const peerId =
-          call.callerId === userId ? call.receiverId : call.callerId;
-        io.to(`user:${peerId}`).emit("call:ended", { callId });
-        userCalls.delete(call.callerId);
-        userCalls.delete(call.receiverId);
-        calls.delete(callId);
-      }
+      cleanupCall(callId, true, userId);
     });
   });
 

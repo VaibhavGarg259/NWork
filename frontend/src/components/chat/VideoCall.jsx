@@ -7,6 +7,8 @@ import {
   VideoOff,
   Mic,
   MicOff,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { socket } from "../../lib/socket";
@@ -39,6 +41,7 @@ const VideoCall = ({ conversationId, targetUserId, targetUser }) => {
   const [cameraOff, setCameraOff] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
+  const [speakerOn, setSpeakerOn] = useState(false);
 
   const peerRef = useRef(null);
   const localStreamRef = useRef(null);
@@ -448,11 +451,15 @@ const VideoCall = ({ conversationId, targetUserId, targetUser }) => {
       }
     };
 
-    const handleRejected = () => {
+    const handleRejected = ({ callId } = {}) => {
+      if (callId && callId !== callIdRef.current) return;
+
       resetCall("Call rejected");
     };
 
-    const handleEnded = () => {
+    const handleEnded = ({ callId } = {}) => {
+      if (callId && callId !== callIdRef.current) return;
+
       resetCall("Call ended");
     };
 
@@ -590,6 +597,46 @@ const VideoCall = ({ conversationId, targetUserId, targetUser }) => {
     });
 
     setIsMuted((value) => !value);
+  };
+
+  // Speaker ON/OFF
+  const toggleSpeaker = async () => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    try {
+      if (typeof audio.setSinkId !== "function") {
+        toast.error("Speaker selection is not supported");
+        return;
+      }
+
+      if (!speakerOn) {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        const speaker = devices.find(
+          (device) =>
+            device.kind === "audiooutput" &&
+            /speaker|loudspeaker/i.test(device.label),
+        );
+
+        if (!speaker) {
+          toast.error("Speaker device not found");
+          return;
+        }
+
+        await audio.setSinkId(speaker.deviceId);
+        setSpeakerOn(true);
+        toast.success("Speaker ON");
+      } else {
+        await audio.setSinkId("default");
+        setSpeakerOn(false);
+        toast("Speaker OFF");
+      }
+    } catch (error) {
+      console.error("Speaker error:", error);
+      toast.error("Could not change speaker");
+    }
   };
 
   // Camera on/off
@@ -767,6 +814,19 @@ const VideoCall = ({ conversationId, targetUserId, targetUser }) => {
               title={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? <MicOff size={21} /> : <Mic size={21} />}
+            </button>
+
+            {/* Speaker Button */}
+            <button
+              type="button"
+              onClick={toggleSpeaker}
+              className={`grid size-12 place-items-center rounded-full text-white ${
+                speakerOn ? "bg-success" : "bg-white/20"
+              }`}
+              aria-label={speakerOn ? "Speaker Off" : "Speaker On"}
+              title={speakerOn ? "Speaker Off" : "Speaker On"}
+            >
+              {speakerOn ? <Volume2 size={21} /> : <VolumeX size={21} />}
             </button>
 
             {activeCall.type === "video" && (
